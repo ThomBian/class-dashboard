@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Lobster|Pacifico|Satisfy');
+@import url('https://fonts.googleapis.com/css?family=Satisfy|Gloria+Hallelujah');
 
 /*
     Clean style
@@ -11,6 +11,10 @@ input, button, submit { border:none; }
     flex-direction: column;
     justify-content: center;
     text-align: center;
+    font-family: 'Gloria Hallelujah', cursive;
+}
+
+.cl-header {
     font-family: 'Satisfy', cursive;
 }
 
@@ -25,7 +29,7 @@ input, button, submit { border:none; }
 }
 
 .btn:hover {
-    background-color: #ecf0f1;
+    background-color: #757575;
     color: black;
     cursor: pointer;
 }
@@ -80,15 +84,11 @@ input, button, submit { border:none; }
     background-color: rgba(187, 222, 251, 0.2);    
 }
 
-.sc-header {
-    font-family: 'Satisfy', cursive;
-}
-
 .sc-footer {
     display: flex;
     flex-direction: row;
 }
 
-.sc-body {
-    font-family: 'Pacifico', cursive;
+.student-birthdate {
+    font-family: 'Satisfy', cursive;
 }
