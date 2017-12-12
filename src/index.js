@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import deletePicture from './pictures/cross.png';
-import edit from './pictures/edit.png';
 
 class StudentCard extends React.Component {
   render() {
@@ -12,19 +10,20 @@ class StudentCard extends React.Component {
         return 'average-top';
     };
     return (
-      <div className={`student-card ${this.props.sex}`}>
-        <div className="sc-header">
-          <h1 className={getClassFromAverage(this.props.average)}>{this.props.average} / 20</h1>
-        </div>
-        <div className="sc-body">
-          <h1 className="student-lastname">{this.props.lastname}</h1>
-          <h2 className="student-firstname">{this.props.firstname}</h2>
-          <h5 className="student-birthdate">{this.props.birthdate}</h5>
+      <div className="student-card">
+        <div className={`sc-body ${this.props.sex}`}>
+          <div className="student-info student-lastname">{this.props.lastname}</div>
+          <div className="student-info student-firstname">{this.props.firstname}</div>
         </div>
         <div className="sc-footer">
-          <button className="btn edit-student-btn"><img src={edit} alt=""/></button>
-          <div className="empty-space"></div>
-          <button className="btn delete-student-btn"><img onClick={() => this.props.onDeleteClick()} src={deletePicture} alt=""/></button>
+          <div className="marks">
+            <div className={`mark ${getClassFromAverage(this.props.average)}`}>{this.props.average} / 20</div>
+          </div>
+          <div className="actions-student">
+            <button className="btn edit-student-btn" onClick={() => this.props.onEditClick()} >Edit</button>
+            <div className="empty-space"></div>
+            <button className="btn delete-student-btn" onClick={() => this.props.onDeleteClick()}>Delete</button>
+          </div>
         </div>
       </div>
     );
@@ -37,7 +36,7 @@ class Classroom extends React.Component {
     super(props);
     this.state = {
       students: props.students
-    }
+    };
   }
 
   createStudentCards(){
@@ -48,29 +47,77 @@ class Classroom extends React.Component {
                     lastname={student.lastname} 
                     firstname={student.firstname}
                     onDeleteClick={() => this.handleDeleteClick(student.id)}
+                    onEditClick={() => this.handleEditClick(student)}
       /> );
   };
 
+  handleAddClick() {
+    document.getElementById('modal').style.visibility = 'visible';
+  }
+
   handleDeleteClick(id) {
      this.setState({students: this.state.students.slice().filter(student => student.id !== id)});
+  }
+
+  handleEditClick(student) {
+    alert(JSON.stringify(student));
   }
 
   render() {
     return (
       <div className="classroom">
         <div className="cl-header">
-          <h1>My Classroom</h1>
+          <div className="center">
+            <h1>My Classroom</h1>
+          </div>
+          <div className="right">
+            <button className="btn add-student" onClick={this.handleAddClick}>Add Student</button>
+          </div>
         </div>
         <div className="students">
           {this.createStudentCards()}
         </div>
         <div className="footer">
+          <Modal />
         </div>
       </div>
     );
   } 
 }
 
+
+class Modal extends React.Component {
+  render() {
+      return (
+          <div id="modal" className="modal">
+              <div className="modal-header"> 
+                  <h1>Add Student</h1>
+              </div>
+              <div className="body">
+              <form>
+              <div>
+                  <label htmlFor="lastname">Lastname :</label>
+                  <input type="text" id="lastname" />
+              </div>
+              <div>
+                  <label htmlFor="firstname">Firstname :</label>
+                  <input type="text" id="firstname" />
+              </div>
+              <div>
+                  <label htmlFor="mark">Average :</label>
+                  <input type="text" id="mark"></input>
+              </div>
+              
+              <div className="button">
+                  <button className="btn" type="submit">Add</button>
+                  <button className="btn" type="reset">Cancel</button>
+              </div>
+              </form>
+              </div>
+          </div>
+      );
+  }
+}
 
   // ========================================
   const studentsMock = [{

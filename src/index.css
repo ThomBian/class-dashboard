@@ -4,7 +4,7 @@
     Clean style
 */
 
-input, button, submit { border:none; } 
+button, submit { border:none; } 
 
 .classroom {
     display: flex;
@@ -16,16 +16,21 @@ input, button, submit { border:none; }
 
 .cl-header {
     font-family: 'Satisfy', cursive;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .btn {
-    padding: 10px 20px;
+    padding: 10px 30px;
     background-color: black;
     color: white;
 }
 
-.empty-space {
-    width: 10px;
+.add-student {
+    background-color: #2196F3;
+    padding: 20px 40px;
+    font-size: 20px;
 }
 
 .btn:hover {
@@ -51,8 +56,9 @@ input, button, submit { border:none; }
 
 .student-card {
     color: black;
-    padding: 20px 40px;
     margin: 5px;
+    box-shadow: 2px 2px 10px -3px rgba(0, 0, 0, 0.3);
+    width: 250px;
     -webkit-transition:  200ms ease-out; 
     -moz-transition:  200ms ease-out; 
       -o-transition:  200ms ease-out; 
@@ -60,8 +66,7 @@ input, button, submit { border:none; }
 }
 
 .student-card:hover {
-    box-shadow:0px 15px 10px -5px rgba(0, 0, 0, 0.3);
-    padding: 20px 50px;
+    box-shadow:0px 10px 10px -5px rgba(0, 0, 0, 0.3);
 }
 
 .average-top {
@@ -77,18 +82,75 @@ input, button, submit { border:none; }
 }
 
 .girl {
-    background-color: rgba(248, 187, 208, 0.2);
+    background-color: #FF4081;
 }
 
 .boy {
-    background-color: rgba(187, 222, 251, 0.2);    
+    background-color: #2196F3;    
+}
+
+.mark {
+    font-size: 30px;
 }
 
 .sc-footer {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
-.student-birthdate {
-    font-family: 'Satisfy', cursive;
+.sc-body {
+    color: white;
+    box-shadow:0px 2px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.actions-student {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.student-info {
+    font-size: 20px;
+}
+
+.student-lastname {
+    text-transform: uppercase;
+}
+
+.right {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.modal {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 2px 10px -3px rgba(0, 0, 0, 0.3);
+    visibility: hidden;
+}
+
+.modal-header {
+    background-color: #BDBDBD;
+    box-shadow:0px 2px 3px 0px rgba(0, 0, 0, 0.3);    
+}
+
+.modal body {
+    display: flex;
+    flex-direction: column;
+}
+
+form div {
+    margin: 5px;
+}
+label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 3px;
 }
