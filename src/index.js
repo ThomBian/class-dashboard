@@ -20,9 +20,9 @@ class StudentCard extends React.Component {
             <div className={`mark ${getClassFromAverage(this.props.average)}`}>{this.props.average} / 20</div>
           </div>
           <div className="actions-student">
-            <button className="btn edit-student-btn" onClick={() => this.props.onEditClick()} >Edit</button>
+            <button className="btn btn-action edit-student-btn" onClick={() => this.props.onEditClick()} >Edit</button>
             <div className="empty-space"></div>
-            <button className="btn delete-student-btn" onClick={() => this.props.onDeleteClick()}>Delete</button>
+            <button className="btn btn-action delete-student-btn" onClick={() => this.props.onDeleteClick()}>Delete</button>
           </div>
         </div>
       </div>
@@ -34,9 +34,21 @@ class Classroom extends React.Component {
 
   constructor(props) {
     super(props);
+    const firstId = props.students.length;
     this.state = {
-      students: props.students
+      students: props.students,
+      id: firstId,
+      modalState: '',
+      modalStudent: {
+        lastname: '',
+        firstname: '',
+        average: '',
+        sex: ''
+      }
     };
+    this.handleAddClick = this.handleAddClick.bind(this);
+    this.handleModalSubmit = this.handleModalSubmit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
   }
 
   createStudentCards(){
@@ -52,15 +64,63 @@ class Classroom extends React.Component {
   };
 
   handleAddClick() {
-    document.getElementById('modal').style.visibility = 'visible';
+    this.setState({
+      modalState: 'Add'
+    });
+    this.showHideModal(true);
   }
 
+  handleCancel() {
+    this.setState({
+      modalState: ''
+    });
+    this.showHideModal(false);
+  }
+
+  createModal(action, studentState) {
+    
+  }
+
+  showHideModal(show) {
+    document.getElementById('modal').style.visibility = show ? 'visible' : 'hidden';
+    Array.from(document.getElementsByClassName('btn-action')).forEach(btn => {
+      btn.disabled = show;
+    });
+  }
   handleDeleteClick(id) {
      this.setState({students: this.state.students.slice().filter(student => student.id !== id)});
   }
 
   handleEditClick(student) {
-    alert(JSON.stringify(student));
+    console.log(student);
+    this.setState({
+      modalStudent: student,
+      modalState: 'Edit'
+    });
+    this.showHideModal(true);
+  }
+
+  createStudent(studentValues) {
+    const students = this.state.students.slice();
+    let id = this.state.id;
+    id++;
+    const newStudent = Object.assign(studentValues, {id});
+    students.push(newStudent);
+    this.setState({
+      students: students,
+      id
+    })
+  }
+
+  handleModalSubmit(actionName, studentValues) {
+    this.showHideModal(false);
+    switch(actionName){
+      case "Add":
+        this.createStudent(studentValues);
+        break;
+      default:
+        console.error(actionName, 'not supported yet');
+    }
   }
 
   render() {
@@ -71,52 +131,154 @@ class Classroom extends React.Component {
             <h1>My Classroom</h1>
           </div>
           <div className="right">
-            <button className="btn add-student" onClick={this.handleAddClick}>Add Student</button>
+            <button className="btn btn-action add-student" onClick={this.handleAddClick}></button>
           </div>
         </div>
         <div className="students">
           {this.createStudentCards()}
         </div>
         <div className="footer">
-          <Modal />
+        <Modal 
+          onSubmit={this.handleModalSubmit}
+          onCancel={this.handleCancel}
+          action={this.state.modalState}
+          studentState={this.state.modalStudent}
+        />
         </div>
       </div>
     );
   } 
 }
 
-
 class Modal extends React.Component {
   render() {
       return (
           <div id="modal" className="modal">
               <div className="modal-header"> 
-                  <h1>Add Student</h1>
+                  <h1>{this.props.action} Student</h1>
               </div>
               <div className="body">
-              <form>
-              <div>
-                  <label htmlFor="lastname">Lastname :</label>
-                  <input type="text" id="lastname" />
-              </div>
-              <div>
-                  <label htmlFor="firstname">Firstname :</label>
-                  <input type="text" id="firstname" />
-              </div>
-              <div>
-                  <label htmlFor="mark">Average :</label>
-                  <input type="text" id="mark"></input>
-              </div>
-              
-              <div className="button">
-                  <button className="btn" type="submit">Add</button>
-                  <button className="btn" type="reset">Cancel</button>
-              </div>
-              </form>
+                <StudentActionForm 
+                  actionName={this.props.action}
+                  onSubmit={this.props.onSubmit}
+                  onCancel={this.props.onCancel}
+                  studentState={this.props.studentState}/>
               </div>
           </div>
       );
   }
+}
+
+class StudentActionForm extends React.Component {
+  constructor(props) {
+    super(props);
+    console.log(props.studentState);
+    this.state = {
+      lastname: this.props.studentState.lastname,
+      firstname: this.props.studentState.firstname,
+      average: this.props.studentState.average,
+      sex: this.props.studentState.sex
+    }
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  assertInputIsValid(stateKey) {
+    if (!this.state[stateKey]) {
+      return false;
+    }
+    return true;
+  }
+
+  handleSubmit(e, callback = console.log) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = '';
+    const allValid = Object.keys(this.state).reduce((acc, key) => acc & this.assertInputIsValid(key), true);
+    if (!allValid) {
+      errorDiv.innerHTML = 'All fields must be filled';
+    } else {
+      callback(this.props.actionName, this.state);
+    }
+    e.preventDefault();
+  }
+
+  handleChange(event) {
+    const target = event.target;
+    this.setState({
+      [target.name]: target.value
+    });
+  }
+
+  render() {
+    return (
+      <div className="form">
+        <div id="error"></div>
+        <form onSubmit={(e) => this.handleSubmit(e, this.props.onSubmit)}>
+          <FormInputText 
+          id="lastname"
+          name="lastname" 
+          label="Lastname"
+          type="text"
+          value={this.state.lastname}
+          onChange={this.handleChange}/>
+          <FormInputText 
+            id="firstname"
+            name="firstname" 
+            label="Firstname" 
+            type="text"
+            value={this.state.firstname}
+            onChange={this.handleChange}/>
+          <FormInputNumber 
+            id="mark"
+            name="average" 
+            label="Average"
+            type="number"
+            max="20" 
+            value={this.state.avg}
+            onChange={this.handleChange}/>
+          <FormSexChoice
+            onChange={this.handleChange}/>
+          <div className="button">
+              <button className="btn add-student-modal-btn" type="submit">{this.props.actionName}</button>
+              <button className="btn" type="reset" onClick={this.props.onCancel}>Cancel</button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+function FormInputText(props) {
+  return (
+      <div>
+        <label htmlFor={props.id}>{props.label} :</label>
+        <input name={props.name} value={props.value} type="text" id={props.id} onChange={(e) => props.onChange(e)}></input>
+      </div>
+  );
+}
+
+function FormInputNumber(props) {
+  return (
+      <div>
+        <label htmlFor={props.id}>{props.label} :</label>
+        <input name={props.name} value={props.value} type="number" max={props.max} id={props.id} onChange={(e) => props.onChange(e)}></input>
+      </div>
+  );
+}
+
+function FormSexChoice(props) {
+  return (
+    <div>
+      <label>
+        Girl
+        <input type="radio" name="sex" value="girl" onChange={(e) => props.onChange(e)} />
+      </label>
+      <label>
+        Boy
+        <input type="radio" name="sex" value="boy" onChange={(e) => props.onChange(e)}/>
+      </label>
+    </div>
+  );
 }
 
   // ========================================
@@ -124,32 +286,32 @@ class Modal extends React.Component {
     id:0,
     sex:'boy',
     average:12,
-    lastname:'Bianchini',
-    firstname:'Thomas'
+    lastname:'Von Basten',
+    firstname:'Klyde'
   },{
     id:1,
     sex:'girl',
     average: 16,
-    lastname:'Roques',
-    firstname:'Chloé'
+    lastname:'Antalrinoa',
+    firstname:'Julie'
   },{
     id:2,
     sex:'girl',
     average: 18,
-    lastname:'Zgueg',
-    firstname:'Malika'
+    lastname:'Ben Yeder',
+    firstname:'Sarah'
   },{
     id:3,
     sex:'girl',
     average: 8,
-    lastname:'Alice',
-    firstname:'Coraya'
+    lastname:'Coraya',
+    firstname:'Alice'
   },{
     id:4,
     sex:'boy',
     average: 14,
-    lastname:'Francois',
-    firstname:'Timoté'
+    lastname:'Mozigonacci',
+    firstname:'Kirikus'
   },];
   ReactDOM.render(
     <Classroom students={studentsMock}/>,
