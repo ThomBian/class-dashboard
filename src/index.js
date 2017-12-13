@@ -12,16 +12,14 @@ class StudentCard extends React.Component {
     return (
       <div className="student-card">
         <div className={`sc-body ${this.props.sex}`}>
-          <div className="student-info student-lastname">{this.props.lastname}</div>
-          <div className="student-info student-firstname">{this.props.firstname}</div>
+          <div className="student-info student-lastname editable">{this.props.lastname}</div>
+          <div className="student-info student-firstname editable">{this.props.firstname}</div>
         </div>
         <div className="sc-footer">
           <div className="marks">
-            <div className={`mark ${getClassFromAverage(this.props.average)}`}>{this.props.average} / 20</div>
+            <div className={`mark editable ${getClassFromAverage(this.props.average)}`}>{this.props.average} / 20</div>
           </div>
           <div className="actions-student">
-            <button className="btn btn-action edit-student-btn" onClick={() => this.props.onEditClick()} >Edit</button>
-            <div className="empty-space"></div>
             <button className="btn btn-action delete-student-btn" onClick={() => this.props.onDeleteClick()}>Delete</button>
           </div>
         </div>
@@ -37,14 +35,7 @@ class Classroom extends React.Component {
     const firstId = props.students.length;
     this.state = {
       students: props.students,
-      id: firstId,
-      modalState: '',
-      modalStudent: {
-        lastname: '',
-        firstname: '',
-        average: '',
-        sex: ''
-      }
+      id: firstId
     };
     this.handleAddClick = this.handleAddClick.bind(this);
     this.handleModalSubmit = this.handleModalSubmit.bind(this);
@@ -54,12 +45,12 @@ class Classroom extends React.Component {
   createStudentCards(){
     return this.state.students.map(student => 
       <StudentCard key={student.id}
+                    ref={student.id}
                     sex={student.sex} 
                     average={student.average} 
                     lastname={student.lastname} 
                     firstname={student.firstname}
                     onDeleteClick={() => this.handleDeleteClick(student.id)}
-                    onEditClick={() => this.handleEditClick(student)}
       /> );
   };
 
@@ -77,10 +68,6 @@ class Classroom extends React.Component {
     this.showHideModal(false);
   }
 
-  createModal(action, studentState) {
-    
-  }
-
   showHideModal(show) {
     document.getElementById('modal').style.visibility = show ? 'visible' : 'hidden';
     Array.from(document.getElementsByClassName('btn-action')).forEach(btn => {
@@ -89,15 +76,6 @@ class Classroom extends React.Component {
   }
   handleDeleteClick(id) {
      this.setState({students: this.state.students.slice().filter(student => student.id !== id)});
-  }
-
-  handleEditClick(student) {
-    console.log(student);
-    this.setState({
-      modalStudent: student,
-      modalState: 'Edit'
-    });
-    this.showHideModal(true);
   }
 
   createStudent(studentValues) {
@@ -112,15 +90,9 @@ class Classroom extends React.Component {
     })
   }
 
-  handleModalSubmit(actionName, studentValues) {
+  handleModalSubmit(studentValues) {
     this.showHideModal(false);
-    switch(actionName){
-      case "Add":
-        this.createStudent(studentValues);
-        break;
-      default:
-        console.error(actionName, 'not supported yet');
-    }
+    this.createStudent(studentValues);
   }
 
   render() {
@@ -141,8 +113,6 @@ class Classroom extends React.Component {
         <Modal 
           onSubmit={this.handleModalSubmit}
           onCancel={this.handleCancel}
-          action={this.state.modalState}
-          studentState={this.state.modalStudent}
         />
         </div>
       </div>
@@ -155,14 +125,12 @@ class Modal extends React.Component {
       return (
           <div id="modal" className="modal">
               <div className="modal-header"> 
-                  <h1>{this.props.action} Student</h1>
+                  <h1>Add Student</h1>
               </div>
               <div className="body">
                 <StudentActionForm 
-                  actionName={this.props.action}
                   onSubmit={this.props.onSubmit}
-                  onCancel={this.props.onCancel}
-                  studentState={this.props.studentState}/>
+                  onCancel={this.props.onCancel} />
               </div>
           </div>
       );
@@ -172,12 +140,11 @@ class Modal extends React.Component {
 class StudentActionForm extends React.Component {
   constructor(props) {
     super(props);
-    console.log(props.studentState);
     this.state = {
-      lastname: this.props.studentState.lastname,
-      firstname: this.props.studentState.firstname,
-      average: this.props.studentState.average,
-      sex: this.props.studentState.sex
+      lastname: '',
+      firstname: '',
+      average: '',
+      sex: ''
     }
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -197,7 +164,7 @@ class StudentActionForm extends React.Component {
     if (!allValid) {
       errorDiv.innerHTML = 'All fields must be filled';
     } else {
-      callback(this.props.actionName, this.state);
+      callback(this.state);
     }
     e.preventDefault();
   }
@@ -239,7 +206,7 @@ class StudentActionForm extends React.Component {
           <FormSexChoice
             onChange={this.handleChange}/>
           <div className="button">
-              <button className="btn add-student-modal-btn" type="submit">{this.props.actionName}</button>
+              <button className="btn add-student-modal-btn" type="submit">Add</button>
               <button className="btn" type="reset" onClick={this.props.onCancel}>Cancel</button>
           </div>
         </form>
